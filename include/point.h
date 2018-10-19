@@ -12,7 +12,7 @@ private:
     Point();
 public:
     Point(std::vector<T>);
-    T& operator[](const int&) const;
+    T& operator[](const int&);
     const T& operator[](const int&) const;
     unsigned int getDimensionality() const;
 };
@@ -25,7 +25,7 @@ Point<T>::Point(std::vector<T> coordinates)
 }
 
 template <typename T>
-T& Point<T>::operator[](const int &k) const {
+T& Point<T>::operator[](const int &k) {
     return coordinates[k];
 }
 
@@ -35,7 +35,7 @@ const T& Point<T>::operator[](const int &k) const {
 }
 
 template <typename T>
-unsigned int getDimensionality() const {
+unsigned int Point<T>::getDimensionality() const {
     return dimensionality;
 }
 
