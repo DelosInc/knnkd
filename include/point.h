@@ -1,8 +1,8 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 
 template <typename T>
 class Point {
@@ -11,6 +11,8 @@ private:
     unsigned int dimensionality;
     Point();
 public:
+    unsigned int axis;
+    Point<T> *left, *right;
     Point(std::vector<T>);
     T& operator[](const int&);
     const T& operator[](const int&) const;
@@ -20,7 +22,9 @@ public:
 template <typename T>
 Point<T>::Point(std::vector<T> coordinates)
     : dimensionality(coordinates.size()),
-      coordinates(coordinates) {
+      coordinates(coordinates),
+      left(nullptr),
+      right(nullptr) {
     ;
 }
 
