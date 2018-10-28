@@ -20,8 +20,10 @@ private:
     void swap(int, int);
 public:
     BoundedPriorityQueue(int);
-    void insert(T, float);
+    void enqueue(T, float);
     T extractMin();
+    float minPriority();
+    bool full();
 };
 
 template <typename T>
@@ -70,7 +72,7 @@ void BoundedPriorityQueue<T>::siftDown(int index) {
     if(l <= size && queue[index].second > queue[l].second) {
         smallest = l;
     }
-    if (r <= size && queue[smallest].second > queue[r].second) {
+    if(r <= size && queue[smallest].second > queue[r].second) {
         smallest = r;
     }
     if(smallest != index) {
@@ -80,7 +82,7 @@ void BoundedPriorityQueue<T>::siftDown(int index) {
 }
 
 template <typename T>
-void BoundedPriorityQueue<T>::insert(T element, float priority) {
+void BoundedPriorityQueue<T>::enqueue(T element, float priority) {
     if(size > bound) {
         swap(maxIndex, bound);
     }
@@ -100,6 +102,16 @@ T BoundedPriorityQueue<T>::extractMin() {
     queue[0] = queue[size-1];
     siftDown(0);
     return min.first;
+}
+
+template <typename T>
+float BoundedPriorityQueue<T>::minPriority() {
+    return queue[0].second;
+}
+
+template <typename T>
+bool BoundedPriorityQueue<T>::full() {
+    return (size == queue.size())? true: false;
 }
 
 #endif

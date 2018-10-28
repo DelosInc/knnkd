@@ -172,7 +172,7 @@ Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
             currentPoint = currentPoint->right;
         }
         if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) < bestDistance)) {
-            if(currentPoint = currentPoint->parent->left) {
+            if(currentPoint == currentPoint->parent->left) {
                 currentPoint = currentPoint->parent->right;
             }
             else {
@@ -181,6 +181,32 @@ Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
         }
     }
     return nearestNeighbor;
+}
+
+template <typename T>
+BoundedPriorityQueue<Point<T>>& KdTree<T>::knnsearch(const Point<T>& testPoint,
+                                                     const unsigned int bound) {
+    BoundedPriorityQueue<Point<T>*> nearestNeighbors(bound);
+    Point<T> *currentPoint = root;
+    while(currentPoint) {
+        nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
+        if(testPoint[currentPoint->axis] < currentPoint[currentPoint->axis]) {
+            currentPoint = currentPoint->left;
+        }
+        else {
+            currentPoint = currentPoint->right;
+        }
+        if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) <
+            nearestNeighbors.minPriority[currentPoint->axis]) || !nearestNeighbors.full()) {
+            if(currentPoint == currentPoint->parent->left) {
+                currentPoint = currentPoint->parent->right;
+            }
+            else {
+                currentPoint = currentPoint->parent->left;
+            }
+        }
+    }
+    return nearestNeighbors;
 }
 
 #endif
