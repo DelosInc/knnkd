@@ -15,7 +15,7 @@ private:
     const unsigned int dimensionality;
     unsigned int size;
     Point<T>* buildTree(std::vector<Point<T>>&, typename std::vector<Point<T>>::iterator,
-                        typename std::vector<Point<T>>::iterator, unsigned int);
+                        typename std::vector<Point<T>>::iterator, unsigned int, Point<T> &);
     float distance(const Point<T>*, const Point<T>*);
 public:
     KdTree(unsigned int);
@@ -42,7 +42,7 @@ template <typename T>
 KdTree<T>::KdTree(std::vector<Point<T>>& points, unsigned int dimensionality)
     : dimensionality(dimensionality),
       size(points.size()) {
-    root = buildTree(points, 0, points.size(), 0);
+    root = buildTree(points, 0, points.size(), 0, nullptr);
 }
 
 template <typename T>
@@ -121,7 +121,8 @@ template <typename T>
 Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
                                typename std::vector<Point<T>>::iterator begin,
                                typename std::vector<Point<T>>::iterator end,
-                               unsigned int depth) {
+                               unsigned int depth,
+                               Point<T> &parent) {
     if(begin == end) {
         return *begin;
     }
@@ -135,11 +136,12 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     std::advance(middle, (end - begin) / 2);
     Point<T>* x = *middle;
     x->axis = axis;
+    x->parent = parent;
     if((middle - begin) > 0) {
-        x->left = buildTree(begin, middle, depth + 1);
+        x->left = buildTree(begin, middle, depth + 1, x);
     }
     if((end - middle) > 0) {
-        x->right = buildTree(middle + 1, end, depth + 1);
+        x->right = buildTree(middle + 1, end, depth + 1, x);
     }
 }
 
@@ -154,8 +156,8 @@ float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
 
 template <typename T>
 Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
-    Point<T> &nearestNeighbor = root;
-    Point<T> &currentPoint = root;
+    Point<T> nearestNeighbor = root;
+    Point<T> currentPoint = root;
     float bestDistance = distance(currentPoint, root);
     int dimensionality = testPoint->dimensionality;
     while(currentPoint) {
@@ -167,7 +169,7 @@ Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
             currentPoint = currentPoint->left;
         }
         else {
-            currentPoint = currentPoint ->right;
+            currentPoint = currentPoint->right;
         }
         if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) < bestDistance)) {
             if(currentPoint = currentPoint->parent->left) {

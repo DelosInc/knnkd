@@ -12,7 +12,7 @@ private:
     Point();
 public:
     unsigned int axis;
-    Point<T> *left, *right;
+    Point<T> *left, *right, *parent;
     Point(std::vector<T>);
     T& operator[](const int&);
     const T& operator[](const int&) const;
