@@ -23,7 +23,7 @@ public:
     KdTree(std::vector<Point<T>>&, unsigned int);
     Point<T>* insert(Point<T>*);
     Point<T>* search(Point<T>*);
-    Point<T>& nnsearch(const Point<T>*);
+    Point<T>* nnsearch(const Point<T>*);
     BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
     void display() const;
     unsigned int getDimensionality() const;
@@ -93,14 +93,15 @@ void KdTree<T>::display() const {
     Point<T> *current;
     q.push(root);
     while(!q.empty()) {
-        current = q.pop();
+        current = q.front();
+        q.pop();
         if(current->left) {
             q.push(current->left);
         }
         if(current->right) {
             q.push(current->right);
         }
-        std::cout<<current;
+        std::cout << current << std::endl;
     }
 }
 
@@ -158,7 +159,7 @@ float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
 }
 
 template <typename T>
-Point<T>& KdTree<T>::nnsearch(const Point<T> *testPoint) {
+Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
     Point<T> *nearestNeighbor = root;
     Point<T> *currentPoint = root;
     float bestDistance = distance(currentPoint, root);
@@ -182,7 +183,7 @@ Point<T>& KdTree<T>::nnsearch(const Point<T> *testPoint) {
             }
         }
     }
-    return *nearestNeighbor;
+    return nearestNeighbor;
 }
 
 template <typename T>

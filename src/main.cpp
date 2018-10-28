@@ -13,8 +13,9 @@ int main() {
     }
     KdTree<int> t(tbi, 2);
     x = new Point<int>(std::vector<int>{d(rng), d(rng)});
-    t.insert(x);
+    //t.insert(x);
     t.search(x);
-    t.nnsearch(x);
+    //t.display();
+    //t.nnsearch(x);
     return 0;
 }
