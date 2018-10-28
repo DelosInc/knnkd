@@ -2,6 +2,7 @@
 #define KDTREE_H
 
 #include <iostream>
+#include <algorithm>
 #include <queue>
 #include <math.h>
 #include "point.h"
@@ -13,7 +14,8 @@ private:
     Point<T> *root;
     const unsigned int dimensionality;
     unsigned int size;
-    Point<T>* buildTree(std::vector<Point<T>>&, unsigned int, unsigned int, unsigned int);
+    Point<T>* buildTree(std::vector<Point<T>>&, typename std::vector<Point<T>>::iterator,
+                        typename std::vector<Point<T>>::iterator, unsigned int);
     float distance(const Point<T>*, const Point<T>*);
 public:
     KdTree(unsigned int);
@@ -45,14 +47,41 @@ KdTree<T>::KdTree(std::vector<Point<T>>& points, unsigned int dimensionality)
 
 template <typename T>
 Point<T>* KdTree<T>::insert(const Point<T>& p) {
-    _insert(root, p);
-    size++;
+    Point<T> *y = nullptr;
+    Point<T> *x = root;
+    while(x != nullptr) {
+        y = x;
+        if(p[x->axis] < x[x->axis]) {
+            x = x->left;
+        }
+        else {
+            x = x->right;
+        }
+    }
+    if(y == nullptr) {
+        root = p;
+    }
+    else if(p[x->axis] < y[x->axis]) {
+        y->left = p;
+    }
+    else {
+        y->right = p;
+    }
+    p->axis = (++x->axis) % dimensionality;
     return p;
 }
 
 template <typename T>
 Point<T>* KdTree<T>::search(const Point<T>& p) {
-    return _search(root, p);
+    Point<T> *x = root;
+    while(x != nullptr && x != p) {
+        if(p[x->axis] < x[x->axis]) {
+            x = x->left;
+        }
+        else {
+            x = x->right;
+        }
+    }
 }
 
 template <typename T>
@@ -88,9 +117,29 @@ bool KdTree<T>::empty() const {
 }
 
 template <typename T>
-Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points, unsigned int begin,
-                               unsigned int end, unsigned int depth) {
-    ;
+Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
+                               typename std::vector<Point<T>>::iterator begin,
+                               typename std::vector<Point<T>>::iterator end,
+                               unsigned int depth) {
+    if(begin == end) {
+        return *begin;
+    }
+    unsigned int axis = depth % dimensionality;
+    if(end - begin > 1) {
+        std::sort(begin, end, [axis](const Point<T>& a, const Point<T>& b) -> bool {
+            return a[axis] < b[axis];
+        });
+    }
+    typename std::vector<Point<T>>::iterator middle = begin;
+    std::advance(middle, (end - begin) / 2);
+    Point<T>* x = *middle;
+    x->axis = axis;
+    if((middle - begin) > 0) {
+        x->left = buildTree(begin, middle, depth + 1);
+    }
+    if((end - middle) > 0) {
+        x->right = buildTree(middle + 1, end, depth + 1);
+    }
 }
 
 template <typename T>
