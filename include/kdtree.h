@@ -16,7 +16,7 @@ private:
     const unsigned int dimensionality;
     unsigned int size;
     Point<T>* buildTree(std::vector<Point<T>>&, typename std::vector<Point<T>>::iterator,
-                        typename std::vector<Point<T>>::iterator, unsigned int, Point<T> &);
+                        typename std::vector<Point<T>>::iterator, unsigned int, Point<T> *);
     float distance(const Point<T>*, const Point<T>*);
 public:
     KdTree(unsigned int);
@@ -43,7 +43,7 @@ template <typename T>
 KdTree<T>::KdTree(std::vector<Point<T>>& points, unsigned int dimensionality)
     : dimensionality(dimensionality),
       size(points.size()) {
-    root = buildTree(points, 0, points.size(), 0, nullptr);
+    root = buildTree(points, points.begin(), points.end(), 0, nullptr);
 }
 
 template <typename T>
@@ -123,9 +123,9 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
                                typename std::vector<Point<T>>::iterator begin,
                                typename std::vector<Point<T>>::iterator end,
                                unsigned int depth,
-                               Point<T> &parent) {
+                               Point<T> *parent) {
     if(begin == end) {
-        return *begin;
+        return &*begin;
     }
     unsigned int axis = depth % dimensionality;
     if(end - begin > 1) {
@@ -139,10 +139,10 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     x->axis = axis;
     x->parent = parent;
     if((middle - begin) > 0) {
-        x->left = buildTree(begin, middle, depth + 1, x);
+        x->left = buildTree(points, begin, middle, depth + 1, x);
     }
     if((end - middle) > 0) {
-        x->right = buildTree(middle + 1, end, depth + 1, x);
+        x->right = buildTree(points, middle + 1, end, depth + 1, x);
     }
 }
 
