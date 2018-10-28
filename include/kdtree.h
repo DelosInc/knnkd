@@ -12,14 +12,11 @@ private:
     const unsigned int dimensionality;
     unsigned int size;
     Point<T>* buildTree(std::vector<Point<T>>&, unsigned int, unsigned int, unsigned int);
-    Point<T>* _insert(Point<T>*, const Point<T>&);
-    Point<T>* _search(Point<T>*, const Point<T>&);
     float distance(const Point<T>*, const Point<T>*);
 public:
     KdTree(unsigned int);
     KdTree(std::vector<Point<T>>&, unsigned int);
     Point<T>* insert(const Point<T>&);
-    Point<T>* remove(const Point<T>&);
     Point<T>* search(const Point<T>&);
     Point<T>& nnsearch(const Point<T>&);
     BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
@@ -91,16 +88,6 @@ bool KdTree<T>::empty() const {
 template <typename T>
 Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points, unsigned int begin,
                                unsigned int end, unsigned int depth) {
-    ;
-}
-
-template <typename T>
-Point<T>* KdTree<T>::_insert(Point<T>* root, const Point<T>& p) {
-    ;
-}
-
-template <typename T>
-Point<T>* _search(Point<T>* root, const Point<T>& p) {
     ;
 }
 
