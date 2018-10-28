@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <queue>
+#include <math.h>
 #include "point.h"
+#include "bpq.h"
 
 template <typename T>
 class KdTree {
@@ -89,6 +91,44 @@ template <typename T>
 Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points, unsigned int begin,
                                unsigned int end, unsigned int depth) {
     ;
+}
+
+template <typename T>
+float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
+    int squaredDistance = 0;
+    for(int i_dist = 0; i_dist < p1->dimensionality; i_dist ++) {
+        squaredDistance += (p1[i_dist] - p2[i_dist]) * (p1[i_dist] - p2[i_dist]);
+    }
+    return sqrt(squaredDistance);
+}
+
+template <typename T>
+Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
+    Point<T> &nearestNeighbor = root;
+    Point<T> &currentPoint = root;
+    float bestDistance = distance(currentPoint, root);
+    int dimensionality = testPoint->dimensionality;
+    while(currentPoint) {
+        if(distance(currentPoint, nearestNeighbor) < bestDistance) {
+            nearestNeighbor = currentPoint;
+            bestDistance = distance(currentPoint, testPoint);
+        }
+        if(testPoint[currentPoint->axis] < currentPoint[currentPoint->axis]) {
+            currentPoint = currentPoint->left;
+        }
+        else {
+            currentPoint = currentPoint ->right;
+        }
+        if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) < bestDistance)) {
+            if(currentPoint = currentPoint->parent->left) {
+                currentPoint = currentPoint->parent->right;
+            }
+            else {
+                currentPoint = currentPoint->parent->left;
+            }
+        }
+    }
+    return nearestNeighbor;
 }
 
 #endif
