@@ -16,6 +16,7 @@ public:
     Point(std::vector<T>);
     T& operator[](const int&);
     const T& operator[](const int&) const;
+    bool operator != (const Point<T>&) const;
     unsigned int getDimensionality() const;
 };
 
@@ -36,6 +37,16 @@ T& Point<T>::operator[](const int &k) {
 template <typename T>
 const T& Point<T>::operator[](const int &k) const {
     return coordinates[k];
+}
+
+template <typename T>
+bool Point<T>::operator != (const Point<T>& p) const {
+    for(unsigned int i = 0; i < coordinates.size(); i++) {
+        if(this[i] != p[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template <typename T>

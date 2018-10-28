@@ -81,6 +81,7 @@ Point<T>* KdTree<T>::search(const Point<T>& p) {
         else {
             x = x->right;
         }
+    return x;
     }
 }
 
