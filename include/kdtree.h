@@ -2,6 +2,7 @@
 #define KDTREE_H
 
 #include <iostream>
+#include <vector>
 #include <algorithm>
 #include <queue>
 #include <math.h>
@@ -134,7 +135,7 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     }
     typename std::vector<Point<T>>::iterator middle = begin;
     std::advance(middle, (end - begin) / 2);
-    Point<T>* x = *middle;
+    Point<T>* x = new Point<T>(*middle);
     x->axis = axis;
     x->parent = parent;
     if((middle - begin) > 0) {
