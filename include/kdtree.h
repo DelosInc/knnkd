@@ -21,9 +21,9 @@ private:
 public:
     KdTree(unsigned int);
     KdTree(std::vector<Point<T>>&, unsigned int);
-    Point<T>* insert(const Point<T>&);
-    Point<T>* search(const Point<T>&);
-    Point<T>& nnsearch(const Point<T>&);
+    Point<T>* insert(Point<T>*);
+    Point<T>* search(Point<T>*);
+    Point<T>& nnsearch(const Point<T>*);
     BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
     void display() const;
     unsigned int getDimensionality() const;
@@ -47,12 +47,12 @@ KdTree<T>::KdTree(std::vector<Point<T>>& points, unsigned int dimensionality)
 }
 
 template <typename T>
-Point<T>* KdTree<T>::insert(const Point<T>& p) {
+Point<T>* KdTree<T>::insert(Point<T> *p) {
     Point<T> *y = nullptr;
     Point<T> *x = root;
     while(x != nullptr) {
         y = x;
-        if(p[x->axis] < x[x->axis]) {
+        if((*p)[x->axis] < (*x)[x->axis]) {
             x = x->left;
         }
         else {
@@ -62,7 +62,7 @@ Point<T>* KdTree<T>::insert(const Point<T>& p) {
     if(y == nullptr) {
         root = p;
     }
-    else if(p[x->axis] < y[x->axis]) {
+    else if((*p)[x->axis] < (*y)[x->axis]) {
         y->left = p;
     }
     else {
@@ -73,17 +73,18 @@ Point<T>* KdTree<T>::insert(const Point<T>& p) {
 }
 
 template <typename T>
-Point<T>* KdTree<T>::search(const Point<T>& p) {
+Point<T>* KdTree<T>::search(Point<T> *p) {
     Point<T> *x = root;
     while(x != nullptr && x != p) {
-        if(p[x->axis] < x[x->axis]) {
+        if((*p)[x->axis] < (*x)[x->axis]) {
             x = x->left;
         }
         else {
             x = x->right;
         }
-    return x;
+        return x;
     }
+    return nullptr;
 }
 
 template <typename T>
@@ -144,35 +145,35 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     if((end - middle) > 0) {
         x->right = buildTree(points, middle + 1, end, depth + 1, x);
     }
+    return nullptr;
 }
 
 template <typename T>
 float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
-    int squaredDistance = 0;
-    for(int i_dist = 0; i_dist < p1->dimensionality; i_dist ++) {
-        squaredDistance += (p1[i_dist] - p2[i_dist]) * (p1[i_dist] - p2[i_dist]);
+    unsigned int squaredDistance = 0;
+    for(unsigned int i_dist = 0; i_dist < dimensionality; i_dist ++) {
+        squaredDistance += ((*p1)[i_dist] - (*p2)[i_dist]) * ((*p1)[i_dist] - (*p2)[i_dist]);
     }
     return sqrt(squaredDistance);
 }
 
 template <typename T>
-Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
-    Point<T> nearestNeighbor = root;
-    Point<T> currentPoint = root;
+Point<T>& KdTree<T>::nnsearch(const Point<T> *testPoint) {
+    Point<T> *nearestNeighbor = root;
+    Point<T> *currentPoint = root;
     float bestDistance = distance(currentPoint, root);
-    int dimensionality = testPoint->dimensionality;
     while(currentPoint) {
         if(distance(currentPoint, nearestNeighbor) < bestDistance) {
             nearestNeighbor = currentPoint;
             bestDistance = distance(currentPoint, testPoint);
         }
-        if(testPoint[currentPoint->axis] < currentPoint[currentPoint->axis]) {
+        if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
             currentPoint = currentPoint->left;
         }
         else {
             currentPoint = currentPoint->right;
         }
-        if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) < bestDistance)) {
+        if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) < bestDistance)) {
             if(currentPoint == currentPoint->parent->left) {
                 currentPoint = currentPoint->parent->right;
             }
@@ -181,7 +182,7 @@ Point<T>& KdTree<T>::nnsearch(const Point<T>& testPoint) {
             }
         }
     }
-    return nearestNeighbor;
+    return *nearestNeighbor;
 }
 
 template <typename T>
@@ -191,14 +192,14 @@ BoundedPriorityQueue<Point<T>>& KdTree<T>::knnsearch(const Point<T>& testPoint,
     Point<T> *currentPoint = root;
     while(currentPoint) {
         nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
-        if(testPoint[currentPoint->axis] < currentPoint[currentPoint->axis]) {
+        if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
             currentPoint = currentPoint->left;
         }
         else {
             currentPoint = currentPoint->right;
         }
-        if((abs(currentPoint[currentPoint->axis] - testPoint[currentPoint->axis]) <
-            nearestNeighbors.minPriority[currentPoint->axis]) || !nearestNeighbors.full()) {
+        if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) <
+            (*nearestNeighbors.minPriority)[currentPoint->axis]) || !nearestNeighbors.full()) {
             if(currentPoint == currentPoint->parent->left) {
                 currentPoint = currentPoint->parent->right;
             }

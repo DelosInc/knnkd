@@ -22,8 +22,8 @@ public:
 
 template <typename T>
 Point<T>::Point(std::vector<T> coordinates)
-    : dimensionality(coordinates.size()),
-      coordinates(coordinates),
+    : coordinates(coordinates),
+      dimensionality(coordinates.size()),
       left(nullptr),
       right(nullptr) {
     ;
