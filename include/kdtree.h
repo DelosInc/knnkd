@@ -59,6 +59,7 @@ Point<T>* KdTree<T>::insert(Point<T> *p) {
             x = x->right;
         }
     }
+    p->parent = y;
     if(y == nullptr) {
         root = p;
     }
@@ -101,7 +102,7 @@ void KdTree<T>::display() const {
         if(current->right) {
             q.push(current->right);
         }
-        std::cout << current << std::endl;
+        std::cout<<current<<std::endl;
     }
 }
 
@@ -143,7 +144,7 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     if((middle - begin) > 0) {
         x->left = buildTree(points, begin, middle, depth + 1, x);
     }
-    if((end - middle) > 0) {
+    if((end - middle - 1) > 0) {
         x->right = buildTree(points, middle + 1, end, depth + 1, x);
     }
     return x;
@@ -169,17 +170,25 @@ Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
             bestDistance = distance(currentPoint, testPoint);
         }
         if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
-            currentPoint = currentPoint->left;
+            if(currentPoint->left != nullptr) {
+                currentPoint = currentPoint->left;
+            }
         }
         else {
-            currentPoint = currentPoint->right;
+            if(currentPoint->right != nullptr) {
+                currentPoint = currentPoint->right;
+            }
         }
         if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) < bestDistance)) {
             if(currentPoint == currentPoint->parent->left) {
-                currentPoint = currentPoint->parent->right;
+                if(currentPoint->parent->right) {
+                    currentPoint = currentPoint->parent->right;
+                }
             }
             else {
-                currentPoint = currentPoint->parent->left;
+                if(currentPoint->parent->left) {
+                    currentPoint = currentPoint->parent->left;
+                }
             }
         }
     }
@@ -194,18 +203,26 @@ BoundedPriorityQueue<Point<T>>& KdTree<T>::knnsearch(const Point<T>& testPoint,
     while(currentPoint) {
         nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
         if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
-            currentPoint = currentPoint->left;
+            if(currentPoint->left != nullptr) {
+                currentPoint = currentPoint->left;
+            }
         }
         else {
-            currentPoint = currentPoint->right;
+            if(currentPoint->right != nullptr) {
+                currentPoint = currentPoint->right;
+            }
         }
         if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) <
             (*nearestNeighbors.minPriority)[currentPoint->axis]) || !nearestNeighbors.full()) {
             if(currentPoint == currentPoint->parent->left) {
-                currentPoint = currentPoint->parent->right;
+                if(currentPoint->parent->right) {
+                    currentPoint = currentPoint->parent->right;
+                }
             }
             else {
-                currentPoint = currentPoint->parent->left;
+                if(currentPoint->parent->left) {
+                    currentPoint = currentPoint->parent->left;
+                }
             }
         }
     }
