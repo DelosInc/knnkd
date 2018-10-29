@@ -18,6 +18,12 @@ public:
     const T& operator[](const int&) const;
     bool operator != (const Point<T>&) const;
     unsigned int getDimensionality() const;
+    friend std::ostream& operator<<(std::ostream &out, const Point<T> &p) {
+        for(auto i : p.coordinates) {
+            out<<*i<<' ';
+        }
+        return out;
+    }
 };
 
 template <typename T>

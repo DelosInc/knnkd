@@ -62,13 +62,13 @@ Point<T>* KdTree<T>::insert(Point<T> *p) {
     if(y == nullptr) {
         root = p;
     }
-    else if((*p)[x->axis] < (*y)[x->axis]) {
+    else if((*p)[y->axis] < (*y)[y->axis]) {
         y->left = p;
     }
     else {
         y->right = p;
     }
-    p->axis = (++x->axis) % dimensionality;
+    p->axis = (++y->axis) % dimensionality;
     return p;
 }
 
@@ -146,7 +146,7 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
     if((end - middle) > 0) {
         x->right = buildTree(points, middle + 1, end, depth + 1, x);
     }
-    return nullptr;
+    return x;
 }
 
 template <typename T>
