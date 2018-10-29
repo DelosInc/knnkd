@@ -165,9 +165,9 @@ template<typename T>
 Point<T>* KdTree<T>::nnsearch(const Point<T>* testPoint) {
     Point<T>* currentPoint = root;
     Point<T>* nearestNeighbor = root;
-    float bestDistance = std::numeric_limits<T>::infinity();
+    float bestDistance = std::numeric_limits<float>::infinity();
     do {
-        if(distance(currentPoint, nearestNeighbor) < bestDistance) {
+        if(distance(currentPoint, nearestNeighbor) < bestDistance && currentPoint != root) {
             bestDistance = distance(currentPoint, nearestNeighbor);
             nearestNeighbor = currentPoint;
         }

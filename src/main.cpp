@@ -7,7 +7,7 @@ int main() {
     std::vector<Point<int>> tbi;
     std::default_random_engine rng;
     std::uniform_int_distribution<int> d(-10,10);
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 5; i++) {
         x = new Point<int>(std::vector<int>{i, 2 * i});
         tbi.push_back(*x);
     }
