@@ -164,7 +164,7 @@ Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
     Point<T> *nearestNeighbor = root;
     Point<T> *currentPoint = root;
     float bestDistance = distance(currentPoint, root);
-    while(currentPoint) {
+    do {
         if(distance(currentPoint, nearestNeighbor) < bestDistance) {
             nearestNeighbor = currentPoint;
             bestDistance = distance(currentPoint, testPoint);
@@ -172,11 +172,13 @@ Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
         if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
             if(currentPoint->left != nullptr) {
                 currentPoint = currentPoint->left;
+                continue;
             }
         }
         else {
             if(currentPoint->right != nullptr) {
                 currentPoint = currentPoint->right;
+                continue;
             }
         }
         if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) < bestDistance)) {
@@ -191,7 +193,10 @@ Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
                 }
             }
         }
-    }
+        else {
+            currentPoint = currentPoint->parent;
+        }
+    } while(currentPoint != root);
     return nearestNeighbor;
 }
 
