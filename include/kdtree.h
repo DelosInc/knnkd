@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <queue>
 #include <math.h>
+#include <limits>
 #include "point.h"
 #include "bpq.h"
 
@@ -159,37 +160,40 @@ float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
     return sqrt(squaredDistance);
 }
 
-template <typename T>
-Point<T>* KdTree<T>::nnsearch(const Point<T> *testPoint) {
-    Point<T> *nearestNeighbor = root;
-    Point<T> *currentPoint = root;
-    float bestDistance = distance(currentPoint, root);
+
+template<typename T>
+Point<T>* KdTree<T>::nnsearch(const Point<T>* testPoint) {
+    Point<T>* currentPoint = root;
+    Point<T>* nearestNeighbor = root;
+    float bestDistance = std::numeric_limits<T>::infinity();
     do {
         if(distance(currentPoint, nearestNeighbor) < bestDistance) {
+            bestDistance = distance(currentPoint, nearestNeighbor);
             nearestNeighbor = currentPoint;
-            bestDistance = distance(currentPoint, testPoint);
         }
         if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
-            if(currentPoint->left != nullptr) {
+            if(currentPoint->left) {
                 currentPoint = currentPoint->left;
                 continue;
             }
         }
         else {
-            if(currentPoint->right != nullptr) {
+            if(currentPoint->right) {
                 currentPoint = currentPoint->right;
                 continue;
             }
         }
-        if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) < bestDistance)) {
+        if(abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis] < bestDistance)) {
             if(currentPoint == currentPoint->parent->left) {
                 if(currentPoint->parent->right) {
                     currentPoint = currentPoint->parent->right;
+                    continue;
                 }
             }
             else {
                 if(currentPoint->parent->left) {
                     currentPoint = currentPoint->parent->left;
+                    continue;
                 }
             }
         }
