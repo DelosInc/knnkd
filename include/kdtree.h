@@ -20,17 +20,17 @@ private:
                         typename std::vector<Point<T>>::iterator, unsigned int, Point<T> *);
     float distance(const Point<T>*, const Point<T>*);
     Point<T>* _nnsearch(const Point<T>*, Point<T>*, Point<T>*, float);
+    BoundedPriorityQueue<Point<T>*> _knnsearch(const Point<T>*, Point<T>*, BoundedPriorityQueue<Point<T>*>, float);
 public:
     KdTree(unsigned int);
     KdTree(std::vector<Point<T>>&, unsigned int);
     Point<T>* insert(Point<T>*);
     Point<T>* search(Point<T>*);
-    BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
     void display() const;
     Point<T>* nnsearch(Point<T>*);
+    std::vector<Point<T>*> knnsearch(const Point<T>*, unsigned int);
     unsigned int getDimensionality() const;
     unsigned int getSize() const;
-    Point<T>* getRoot() const;
     bool empty() const;
 };
 
@@ -119,11 +119,6 @@ unsigned int KdTree<T>::getSize() const {
     return size;
 }
 
-template<typename T>
-Point<T>* KdTree<T>::getRoot() const {
-    return root;
-}
-
 template <typename T>
 bool KdTree<T>::empty() const {
     return !size;
@@ -204,37 +199,42 @@ Point<T>* KdTree<T>::_nnsearch(const Point<T>* testPoint, Point<T>* currentPoint
 }
 
 template <typename T>
-BoundedPriorityQueue<Point<T>>& KdTree<T>::knnsearch(const Point<T>& testPoint,
-                                                     const unsigned int bound) {
-    BoundedPriorityQueue<Point<T>*> nearestNeighbors(bound);
-    Point<T> *currentPoint = root;
-    while(currentPoint) {
-        nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
-        if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
-            if(currentPoint->left != nullptr) {
-                currentPoint = currentPoint->left;
-            }
+std::vector<Point<T>*> KdTree<T>::knnsearch(const Point<T>* testPoint, unsigned int k) {
+    BoundedPriorityQueue<Point<T>*> x;
+    distance(root->right, testPoint) < distance(root->left, testPoint) ? x.enqueue(root->right, distance(root->right, testPoint)) : x.enqueue(root->left, distance(root->left, testPoint));
+    BoundedPriorityQueue<Point<T>*> q = _knnsearch(testPoint, root, x, std::numeric_limits<float>::infinity());
+    std::vector<Point<T>*> knn;
+    for(unsigned i = 0; i < k; i++) {
+        knn.push_back(q.extractMin);
+    }
+    return knn;
+}
+
+template <typename T>
+BoundedPriorityQueue<Point<T>*> KdTree<T>::_knnsearch(const Point<T>* testPoint, Point<T>* currentPoint, BoundedPriorityQueue<Point<T>*> nearestNeighbors, float bestDistance) {
+    if(!currentPoint) {
+        return nullptr;
+    }
+    nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
+    bestDistance = nearestNeighbors.getMaxPriority();
+    if((*testPoint)[currentPoint->axis] > (*currentPoint)[currentPoint->axis]) {
+        _knnsearch(testPoint, currentPoint->left, nearestNeighbors, bestDistance);
+    }
+    else {
+        _knnsearch(testPoint, currentPoint->right, nearestNeighbors, nearestNeighbors.getMaxPriority());
+    }
+    if(!nearestNeighbors.full() || abs((*testPoint)[currentPoint->axis] - (*currentPoint)[currentPoint->axis])) {
+        if(currentPoint != root && currentPoint == currentPoint->parent->left) {
+            _knnsearch(testPoint, currentPoint->right, nearestNeighbors, bestDistance);
         }
-        else {
-            if(currentPoint->right != nullptr) {
-                currentPoint = currentPoint->right;
-            }
-        }
-        if((abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis]) <
-            (*nearestNeighbors.minPriority)[currentPoint->axis]) || !nearestNeighbors.full()) {
-            if(currentPoint == currentPoint->parent->left) {
-                if(currentPoint->parent->right) {
-                    currentPoint = currentPoint->parent->right;
-                }
-            }
-            else {
-                if(currentPoint->parent->left) {
-                    currentPoint = currentPoint->parent->left;
-                }
-            }
+        else if(currentPoint != root && currentPoint == currentPoint->parent->right) {
+            _knnsearch(testPoint, currentPoint->left, nearestNeighbors, bestDistance);
         }
     }
     return nearestNeighbors;
 }
+
+
+
 
 #endif

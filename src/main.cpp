@@ -17,6 +17,6 @@ int main() {
     // std::cout<<t.search(x)<<std::endl;
     t.display();
     //t.nnsearch(x);
-    std::cout << t.nnsearch(x);
+    t.knnsearch(x, 2);
     return 0;
 }
