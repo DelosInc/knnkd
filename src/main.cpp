@@ -12,11 +12,11 @@ int main() {
         tbi.push_back(*x);
     }
     KdTree<int> t(tbi, 2);
-    x = new Point<int>(std::vector<int>{d(rng), d(rng)});
+    x = new Point<int>(std::vector<int>{4, 4});
     // t.insert(x);
     // std::cout<<t.search(x)<<std::endl;
     t.display();
     //t.nnsearch(x);
-    t.nnsearch_r(x, t.getRoot(), nullptr, std::numeric_limits<float>::infinity());
+    std::cout << t.nnsearch(x);
     return 0;
 }

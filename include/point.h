@@ -19,8 +19,8 @@ public:
     bool operator != (const Point<T>&) const;
     unsigned int getDimensionality() const;
     friend std::ostream& operator<<(std::ostream &out, const Point<T> *p) {
-        for(auto i : p->coordinates) {
-            out<<i<<' ';
+        for(unsigned int i = 0; i < p->coordinates.size(); i++) {
+            out << p->coordinates[i] << ' ';
         }
         return out;
     }

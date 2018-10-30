@@ -19,15 +19,15 @@ private:
     Point<T>* buildTree(std::vector<Point<T>>&, typename std::vector<Point<T>>::iterator,
                         typename std::vector<Point<T>>::iterator, unsigned int, Point<T> *);
     float distance(const Point<T>*, const Point<T>*);
+    Point<T>* _nnsearch(const Point<T>*, Point<T>*, Point<T>*, float);
 public:
     KdTree(unsigned int);
     KdTree(std::vector<Point<T>>&, unsigned int);
     Point<T>* insert(Point<T>*);
     Point<T>* search(Point<T>*);
-    Point<T>* nnsearch(const Point<T>*);
-    Point<T>* nnsearch_r(const Point<T>*, Point<T>*, Point<T>*, float);
     BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
     void display() const;
+    Point<T>* nnsearch(Point<T>*);
     unsigned int getDimensionality() const;
     unsigned int getSize() const;
     Point<T>* getRoot() const;
@@ -170,52 +170,14 @@ float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
     return sqrt(squaredDistance);
 }
 
-
 template<typename T>
-Point<T>* KdTree<T>::nnsearch(const Point<T>* testPoint) {
-    Point<T>* currentPoint = root;
-    Point<T>* nearestNeighbor = root;
-    float bestDistance = std::numeric_limits<float>::infinity();
-    do {
-        if(distance(currentPoint, nearestNeighbor) < bestDistance && currentPoint != root) {
-            bestDistance = distance(currentPoint, nearestNeighbor);
-            nearestNeighbor = currentPoint;
-        }
-        if((*testPoint)[currentPoint->axis] < (*currentPoint)[currentPoint->axis]) {
-            if(currentPoint->left) {
-                currentPoint = currentPoint->left;
-                continue;
-            }
-        }
-        else {
-            if(currentPoint->right) {
-                currentPoint = currentPoint->right;
-                continue;
-            }
-        }
-        if(abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis] < bestDistance)) {
-            if(currentPoint == currentPoint->parent->left) {
-                if(currentPoint->parent->right) {
-                    currentPoint = currentPoint->parent->right;
-                    continue;
-                }
-            }
-            else {
-                if(currentPoint->parent->left) {
-                    currentPoint = currentPoint->parent->left;
-                    continue;
-                }
-            }
-        }
-        else {
-            currentPoint = currentPoint->parent;
-        }
-    } while(currentPoint != root);
-    return nearestNeighbor;
+Point<T>* KdTree<T>::nnsearch(Point<T>* testPoint) {
+    Point<T>* x = distance(root->right, testPoint) < distance(root->left, testPoint) ? root->right : root->left;
+    return (_nnsearch(testPoint, root, x, std::numeric_limits<float>::infinity()));
 }
 
 template <typename T>
-Point<T>* KdTree<T>::nnsearch_r(const Point<T>* testPoint, Point<T>* currentPoint,
+Point<T>* KdTree<T>::_nnsearch(const Point<T>* testPoint, Point<T>* currentPoint,
                                                                 Point<T>* nearestNeighbor, float bestDistance) {
     if(!currentPoint) {
         return nullptr;
@@ -225,21 +187,17 @@ Point<T>* KdTree<T>::nnsearch_r(const Point<T>* testPoint, Point<T>* currentPoin
         nearestNeighbor = currentPoint;
     }
     if((*currentPoint)[currentPoint->axis] > (*testPoint)[currentPoint->axis]) {
-        nnsearch_r(currentPoint->left, currentPoint, nearestNeighbor, bestDistance);
+        _nnsearch(testPoint, currentPoint->left, nearestNeighbor, bestDistance);
     }
     else {
-        nnsearch_r(currentPoint->right, currentPoint, nearestNeighbor, bestDistance);
+        _nnsearch(testPoint, currentPoint->right, nearestNeighbor, bestDistance);
     }
     if(abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis] < bestDistance)) {
-        if(currentPoint == currentPoint->parent->right) {
-            if(currentPoint->parent->left) {
-                nearestNeighbor = nnsearch_r(currentPoint->parent->left, currentPoint, nearestNeighbor, bestDistance) ;
-            }
+        if( currentPoint != root && currentPoint == currentPoint->parent->right) {
+            nearestNeighbor = _nnsearch(testPoint, currentPoint->left, nearestNeighbor, bestDistance) ;
         }
-        else {
-            if(currentPoint->parent->right) {
-                nearestNeighbor = nnsearch_r(currentPoint->parent->right, currentPoint, nearestNeighbor, bestDistance);
-            }
+        else if(currentPoint != root && currentPoint == currentPoint->parent->left) {
+            nearestNeighbor = _nnsearch(testPoint, currentPoint->parent->right, nearestNeighbor, bestDistance);
         }
     }
     return nearestNeighbor;
