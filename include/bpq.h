@@ -29,19 +29,23 @@ template <typename T>
 void BoundedPriorityQueue<T>::enqueue(T element, float priority) {
     if(queue.empty()) {
         queue.push_back(std::make_pair(element, priority));
+        size++;
+        return;
     }
-    else {
-        unsigned int i = size - 1;
-        while(i >= 0 && queue[i].second > priority) {
-            i--;
-        }
-        queue.insert(queue.begin() + i, std::make_pair(element, priority));
-        if(queue.size() > size) {
-            queue.pop_back();
+    if(full()) {
+        queue.pop_back();
+        size--;
+    }
+    unsigned int i = queue.size();
+    while(i--) {
+        if(priority > queue[i].second) {
+            break;
         }
     }
+    queue.insert(queue.begin()+size, std::make_pair(element, priority));
     size++;
 }
+
 
 template <typename T>
 T BoundedPriorityQueue<T>::extractMin() {
