@@ -17,6 +17,9 @@ int main() {
     // std::cout<<t.search(x)<<std::endl;
     t.display();
     //t.nnsearch(x);
-    t.knnsearch(x, 2);
+    tbi = t.knnsearch(x, 2);
+    for(auto i : tbi) {
+        std::cout << &i << std::endl;
+    }
     return 0;
 }

@@ -28,7 +28,7 @@ public:
     Point<T>* search(Point<T>*);
     void display() const;
     Point<T>* nnsearch(Point<T>*);
-    std::vector<Point<T>*> knnsearch(const Point<T>*, unsigned int);
+    std::vector<Point<T>> knnsearch(const Point<T>*, unsigned int);
     unsigned int getDimensionality() const;
     unsigned int getSize() const;
     bool empty() const;
@@ -199,12 +199,12 @@ Point<T>* KdTree<T>::_nnsearch(const Point<T>* testPoint, Point<T>* currentPoint
 }
 
 template <typename T>
-std::vector<Point<T>*> KdTree<T>::knnsearch(const Point<T>* testPoint, unsigned int k) {
+std::vector<Point<T>> KdTree<T>::knnsearch(const Point<T>* testPoint, unsigned int k) {
     BoundedPriorityQueue<Point<T>*> nearestNeighbors(k);
     nearestNeighbors = _knnsearch(testPoint, root, nearestNeighbors);
-    std::vector<Point<T>*> kNN;
+    std::vector<Point<T>> kNN;
     for(unsigned i = 0; i < k; i++) {
-        kNN.push_back(nearestNeighbors.extractMin());
+        kNN.push_back(*nearestNeighbors.extractMin());
     }
     return kNN;
 }
@@ -212,7 +212,7 @@ std::vector<Point<T>*> KdTree<T>::knnsearch(const Point<T>* testPoint, unsigned 
 template <typename T>
 BoundedPriorityQueue<Point<T>*> KdTree<T>::_knnsearch(const Point<T>* testPoint, Point<T>* currentPoint, BoundedPriorityQueue<Point<T>*> &nearestNeighbors) {
     if(!currentPoint) {
-        return nullptr;
+        return nearestNeighbors;
     }
     nearestNeighbors.enqueue(currentPoint, distance(currentPoint, testPoint));
     if((*currentPoint)[currentPoint->axis] > (*testPoint)[currentPoint->axis]) {
