@@ -10,7 +10,6 @@ private:
     std::vector< std::pair<T, float> > queue;
     unsigned int bound;
     unsigned int size;
-    void swap(unsigned int, unsigned int);
 public:
     BoundedPriorityQueue(unsigned int);
     void enqueue(T, float);
@@ -27,34 +26,34 @@ BoundedPriorityQueue<T>::BoundedPriorityQueue(unsigned int bound)
 }
 
 template <typename T>
-void BoundedPriorityQueue<T>::swap(unsigned int index1, unsigned int index2) {
-    T* temp = queue[index1];
-    queue[index1] = queue[index2];
-    queue[index2]  = temp;
-}
-
-template <typename T>
 void BoundedPriorityQueue<T>::enqueue(T element, float priority) {
-    if(!full()) {
-        for(unsigned int i = 0; i < size; i++) {
-            if(priority < queue[i]) {
-                for(int j = i; j < size; j++) {
-                    queue[j+1] = queue[j];
-                }
-                queue[i] = element;
-            }
+    if(queue.empty()) {
+        queue.push_back(std::make_pair(element, priority));
+    }
+    else {
+        unsigned int i = size - 1;
+        while(i >= 0 && queue[i].second > priority) {
+            i--;
+        }
+        queue.insert(queue.begin() + i, std::make_pair(element, priority));
+        if(queue.size() > size) {
+            queue.pop_back();
         }
     }
+    size++;
 }
 
 template <typename T>
 T BoundedPriorityQueue<T>::extractMin() {
-    return queue[0];
+    T min = queue.front().first;
+    queue.erase(queue.begin(), queue.begin()+1);
+    size--;
+    return min;
 }
 
 template <typename T>
 float BoundedPriorityQueue<T>::getMaxPriority() {
-    return queue[size];
+    return queue[size].second;
 }
 
 template <typename T>
