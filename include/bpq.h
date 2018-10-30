@@ -15,22 +15,25 @@ public:
     BoundedPriorityQueue(unsigned int);
     void enqueue(T, float);
     T extractMin();
-    unsigned getMaxPriority();
+    float getMaxPriority();
     bool full();
 };
 
+template <typename T>
 BoundedPriorityQueue<T>::BoundedPriorityQueue(unsigned int bound)
     :bound(bound),
     size(0) {
 
 }
 
+template <typename T>
 void BoundedPriorityQueue<T>::swap(unsigned int index1, unsigned int index2) {
-    Point<T>* swap = queue[index1];
+    T* temp = queue[index1];
     queue[index1] = queue[index2];
-    queue[index2]  = swap;
+    queue[index2]  = temp;
 }
 
+template <typename T>
 void BoundedPriorityQueue<T>::enqueue(T element, float priority) {
     if(!full()) {
         for(unsigned int i = 0; i < size; i++) {
@@ -44,14 +47,17 @@ void BoundedPriorityQueue<T>::enqueue(T element, float priority) {
     }
 }
 
+template <typename T>
 T BoundedPriorityQueue<T>::extractMin() {
     return queue[0];
 }
 
+template <typename T>
 float BoundedPriorityQueue<T>::getMaxPriority() {
     return queue[size];
 }
 
+template <typename T>
 bool BoundedPriorityQueue<T>::full() {
     if(size == bound) {
         return true;
