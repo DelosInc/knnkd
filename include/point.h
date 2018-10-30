@@ -31,7 +31,8 @@ Point<T>::Point(std::vector<T> coordinates)
     : coordinates(coordinates),
       dimensionality(coordinates.size()),
       left(nullptr),
-      right(nullptr) {
+      right(nullptr),
+      parent(nullptr) {
     ;
 }
 

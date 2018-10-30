@@ -16,6 +16,7 @@ int main() {
     // t.insert(x);
     // std::cout<<t.search(x)<<std::endl;
     t.display();
-    t.nnsearch(x);
+    //t.nnsearch(x);
+    t.nnsearch_r(x, t.getRoot(), nullptr, std::numeric_limits<float>::infinity());
     return 0;
 }

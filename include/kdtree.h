@@ -25,10 +25,12 @@ public:
     Point<T>* insert(Point<T>*);
     Point<T>* search(Point<T>*);
     Point<T>* nnsearch(const Point<T>*);
+    Point<T>* nnsearch_r(const Point<T>*, Point<T>*, Point<T>*, float);
     BoundedPriorityQueue<Point<T>>& knnsearch(const Point<T>&, const unsigned int);
     void display() const;
     unsigned int getDimensionality() const;
     unsigned int getSize() const;
+    Point<T>* getRoot() const;
     bool empty() const;
 };
 
@@ -117,6 +119,11 @@ unsigned int KdTree<T>::getSize() const {
     return size;
 }
 
+template<typename T>
+Point<T>* KdTree<T>::getRoot() const {
+    return root;
+}
+
 template <typename T>
 bool KdTree<T>::empty() const {
     return !size;
@@ -154,6 +161,9 @@ Point<T>* KdTree<T>::buildTree(std::vector<Point<T>>& points,
 template <typename T>
 float KdTree<T>::distance(const Point<T> *p1, const Point<T> *p2) {
     unsigned int squaredDistance = 0;
+    if (!p1 || !p2){
+        return std::numeric_limits<float>::infinity();
+    }
     for(unsigned int i_dist = 0; i_dist < dimensionality; i_dist ++) {
         squaredDistance += ((*p1)[i_dist] - (*p2)[i_dist]) * ((*p1)[i_dist] - (*p2)[i_dist]);
     }
@@ -201,6 +211,37 @@ Point<T>* KdTree<T>::nnsearch(const Point<T>* testPoint) {
             currentPoint = currentPoint->parent;
         }
     } while(currentPoint != root);
+    return nearestNeighbor;
+}
+
+template <typename T>
+Point<T>* KdTree<T>::nnsearch_r(const Point<T>* testPoint, Point<T>* currentPoint,
+                                                                Point<T>* nearestNeighbor, float bestDistance) {
+    if(!currentPoint) {
+        return nullptr;
+    }
+    if(distance(currentPoint, nearestNeighbor) < bestDistance) {
+        bestDistance = distance(currentPoint, nearestNeighbor);
+        nearestNeighbor = currentPoint;
+    }
+    if((*currentPoint)[currentPoint->axis] > (*testPoint)[currentPoint->axis]) {
+        nnsearch_r(currentPoint->left, currentPoint, nearestNeighbor, bestDistance);
+    }
+    else {
+        nnsearch_r(currentPoint->right, currentPoint, nearestNeighbor, bestDistance);
+    }
+    if(abs((*currentPoint)[currentPoint->axis] - (*testPoint)[currentPoint->axis] < bestDistance)) {
+        if(currentPoint == currentPoint->parent->right) {
+            if(currentPoint->parent->left) {
+                nearestNeighbor = nnsearch_r(currentPoint->parent->left, currentPoint, nearestNeighbor, bestDistance) ;
+            }
+        }
+        else {
+            if(currentPoint->parent->right) {
+                nearestNeighbor = nnsearch_r(currentPoint->parent->right, currentPoint, nearestNeighbor, bestDistance);
+            }
+        }
+    }
     return nearestNeighbor;
 }
 
